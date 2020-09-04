@@ -136,7 +136,7 @@ begin
         memory[address + 1] :=  destination;
         memory[address + 2] :=  fork;
 
-        printInstruction(address);
+        printInstruction( address );
     end;
 end;
 
@@ -177,7 +177,7 @@ begin
     else for i := 0 to length - 1 do begin
 
         addr := start + i * 3;
-        printInstruction(addr);
+        printInstruction( addr );
     end;
 end;
 
