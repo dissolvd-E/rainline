@@ -37,7 +37,6 @@ begin
     
     { then create new thread here }
     memory[location] := instructionCounter;
-
 end;
 
 
@@ -85,9 +84,7 @@ begin
     begin
 
         { if this thread is not marked as terminated }
-        if memory[threadIterator] <> threadIterator then
-        
-            stepThread;
+        if memory[threadIterator] <> threadIterator then stepThread;
 
         threadIterator += 1;
     end;
