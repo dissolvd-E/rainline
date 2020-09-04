@@ -159,7 +159,16 @@
         else for i := 0 to length - 1 do begin
 
             addr := start + i * 3;
-            writeln('  [', addr, ']  Source:', memory[addr], '  Destination:', memory[addr + 1], '  Fork:', memory[addr + 2]);
+            writeln(
+                '  [',
+                addr,
+                ']  Source:',
+                memory[addr],
+                '  Destination:',
+                memory[addr + 1],
+                '  Fork:',
+                memory[addr + 2]
+            );
         end;
     end;
 
