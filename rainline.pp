@@ -96,6 +96,22 @@ end;
 
 
 
+procedure printInstruction( addr: Word );
+begin
+    writeln(
+        '  [',
+        addr,
+        ']  Source:',
+        memory[addr],
+        '  Destination:',
+        memory[addr + 1],
+        '  Fork:',
+        memory[addr + 2]
+    );
+end;
+
+
+
 procedure input;
 var
     address:        Word;
@@ -119,6 +135,8 @@ begin
         memory[address] :=      source;
         memory[address + 1] :=  destination;
         memory[address + 2] :=  fork;
+
+        printInstruction(address);
     end;
 end;
 
@@ -159,16 +177,7 @@ begin
     else for i := 0 to length - 1 do begin
 
         addr := start + i * 3;
-        writeln(
-            '  [',
-            addr,
-            ']  Source:',
-            memory[addr],
-            '  Destination:',
-            memory[addr + 1],
-            '  Fork:',
-            memory[addr + 2]
-        );
+        printInstruction(addr);
     end;
 end;
 
