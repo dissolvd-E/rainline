@@ -126,14 +126,14 @@
 
     procedure wordInput;
     var
-        address:    Word;
-        value:      Word;
+        address: Word;
+        content: Word;
     begin
 
-        write('Address Value (space-separated) ');
-        readln(address, value);
+        write('Address Content (space-separated) ');
+        readln(address, content);
 
-        memory[address] := value;
+        memory[address] := content;
     end;
 
 
