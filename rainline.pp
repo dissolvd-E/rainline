@@ -18,12 +18,12 @@ var
 
 
 
-procedure createThread( instructionCounter: Word );
+procedure createThread( instructionPointer: Word );
 var
     location: Word;
 begin
 
-    { find an empty location for the new thread's Instruction Counter }
+    { find an empty location for the new thread's Instruction Pointer }
     location := 0;
 
     { while there's a thread here }
@@ -36,24 +36,24 @@ begin
     do location += 1;
     
     { then create new thread here }
-    memory[location] := instructionCounter;
+    memory[location] := instructionPointer;
 end;
 
 
 
 procedure stepThread;
 var
-    instructionCounter: Word;
+    instructionPointer: Word;
     source:             Word;
     destination:        Word;
     fork:               Word;
 begin
 
-    instructionCounter := memory[threadIterator];
+    instructionPointer := memory[threadIterator];
 
-    source :=       memory[instructionCounter];
-    destination :=  memory[instructionCounter + 1];
-    fork :=         memory[instructionCounter + 2];
+    source :=       memory[instructionPointer];
+    destination :=  memory[instructionPointer + 1];
+    fork :=         memory[instructionPointer + 2];
 
     if source <> destination then
     begin
@@ -70,7 +70,7 @@ begin
         memory[threadIterator] := threadIterator;
 
     { then, fork if the fork address isn't the next instruction }
-    if fork <> instructionCounter + 3 then createThread( fork );
+    if fork <> instructionPointer + 3 then createThread( fork );
 end;
 
 
