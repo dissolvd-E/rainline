@@ -18,25 +18,25 @@ var
 
 
 
-procedure createThread( location: Word );
+procedure createThread( instructionCounter: Word );
 var
-    here: Word;
+    location: Word;
 begin
 
-    { find an empty location for the new thread }
-    here := 0;
+    { find an empty location for the new thread's Instruction Counter }
+    location := 0;
 
     { while there's a thread here }
-    while ( memory[here] > 0 )
+    while ( memory[location] > 0 )
 
     { and this thread's not marked as terminated }
-    and ( here <> memory[here] )
+    and ( memory[location] <> location )
 
     { keep searching }
-    do here += 1;
+    do location += 1;
     
     { then create new thread here }
-    memory[here] := location;
+    memory[location] := instructionCounter;
 
 end;
 
@@ -44,17 +44,17 @@ end;
 
 procedure stepThread;
 var
-    address:        Word;
-    source:         Word;
-    destination:    Word;
-    fork:           Word;
+    instructionCounter: Word;
+    source:             Word;
+    destination:        Word;
+    fork:               Word;
 begin
 
-    address :=      memory[threadIterator];
+    instructionCounter := memory[threadIterator];
 
-    source :=       memory[address];
-    destination :=  memory[address + 1];
-    fork :=         memory[address + 2];
+    source :=       memory[instructionCounter];
+    destination :=  memory[instructionCounter + 1];
+    fork :=         memory[instructionCounter + 2];
 
     if source <> destination then
     begin
@@ -71,7 +71,7 @@ begin
         memory[threadIterator] := threadIterator;
 
     { then, fork if the fork address isn't the next instruction }
-    if fork <> address + 3 then createThread( fork );
+    if fork <> instructionCounter + 3 then createThread( fork );
 end;
 
 
@@ -95,18 +95,32 @@ end;
 
 
 
-procedure printInstruction( addr: Word );
+procedure printInstruction( address: Word );
 begin
     writeln(
         '  [',
-        addr,
+        address,
         ']  Source:',
-        memory[addr],
+        memory[address],
         '  Destination:',
-        memory[addr + 1],
+        memory[address + 1],
         '  Fork:',
-        memory[addr + 2]
+        memory[address + 2]
     );
+end;
+
+
+
+procedure wordInput;
+var
+    address:    Word;
+    content:    Word;
+begin
+
+    write('Enter: Address Content (space-separated) > ');
+    readln( address, content );
+
+    memory[address] := content;
 end;
 
 
@@ -128,7 +142,7 @@ begin
 
     else begin
 
-        write('Source Destination Fork (space-separated) ');
+        write('Enter: Source Destination Fork (space-separated) > ');
         readln( source, destination, fork );
 
         memory[address] :=      source;
@@ -141,16 +155,24 @@ end;
 
 
 
-procedure wordInput;
+procedure dump;
 var
-    address: Word;
-    content: Word;
+    start:  Word;
+    length: Word;
+    i:      Word;
 begin
 
-    write('Address Content (space-separated) ');
-    readln( address, content );
+    write('Enter: Start > ');
+    readln( start );
 
-    memory[address] := content;
+    write('Enter: Length > ');
+    readln( length );
+
+    for i := start to start + length do
+    
+        write('[', i, ']', memory[i], '  ');
+
+    writeln;
 end;
 
 
@@ -160,24 +182,21 @@ var
     start:  Word;
     length: Word;
     i:      Word;
-    addr:   Word;
 begin
 
-    write('Dump-start ');
+    write('Enter: Start > ');
     readln( start );
 
-    write('Dump-length ');
+    write('Enter: Length > ');
     readln( length );
 
     if start mod 3 <> 0 then
 
         writeln('Error: Wrong alignment')
 
-    else for i := 0 to length - 1 do begin
-
-        addr := start + i * 3;
-        printInstruction( addr );
-    end;
+    else for i := 0 to length - 1 do
+    
+        printInstruction( start + i * 3 );
 end;
 
 
@@ -186,12 +205,14 @@ begin
 
     repeat
 
-        writeln('(w)ord-input  (i)nstruction-input  (o)utput  (s)tep  (q)uit');
+        writeln('(w)ord-input  (i)nstruction-input  (d)ump-words  (o)utput-instructions  (s)tep  (q)uit');
         userCommand := readkey;
 
         if userCommand = 'w' then wordInput;
 
         if userCommand = 'i' then input;
+
+        if userCommand = 'd' then dump;
 
         if userCommand = 'o' then output;
 
