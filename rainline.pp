@@ -65,14 +65,13 @@ begin
         { let parent jump to the next instruction }
         memory[threadIterator] += 3;
 
-        { fork if it's not where parent is }
-        if fork <> memory[threadIterator] then createThread( fork );
-
     end else
     
-        { mark this thread as terminated }
+        { else mark this thread as terminated }
         memory[threadIterator] := threadIterator;
 
+    { then, fork if the fork address isn't the next instruction }
+    if fork <> address + 3 then createThread( fork );
 end;
 
 
