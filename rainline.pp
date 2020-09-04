@@ -130,7 +130,7 @@ var
     fork:           Word;
 begin
 
-    write('Address ');
+    write('Enter: Address (aligned) > ');
     readln( address );
 
     if address mod 3 <> 0 then
@@ -181,7 +181,7 @@ var
     i:      Word;
 begin
 
-    write('Enter: Start > ');
+    write('Enter: Start (aligned) > ');
     readln( start );
 
     write('Enter: Length > ');
@@ -199,6 +199,8 @@ end;
 
 
 begin
+
+    writeln('Rainline');
 
     repeat
 
