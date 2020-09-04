@@ -78,7 +78,9 @@ end;
 procedure step;
 begin
 
-    threadIterator := 0;
+    { the 1st thread's Instruction Pointer must be located at address 1 }
+    { trust me }
+    threadIterator := 1;
     
     while memory[threadIterator] > 0 do
     begin
