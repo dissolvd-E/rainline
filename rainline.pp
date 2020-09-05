@@ -24,7 +24,7 @@ var
 begin
 
     { find an empty location for the new thread's Instruction Pointer }
-    location := 0;
+    location := 1;
 
     { while there's a thread here }
     while ( memory[location] > 0 )
@@ -79,7 +79,7 @@ procedure step;
 begin
 
     { the 1st thread's Instruction Pointer must be located at address 1 }
-    { trust me }
+    { because the VM would freeze as soon as the 1st thread is terminated }
     threadIterator := 1;
     
     while memory[threadIterator] > 0 do
