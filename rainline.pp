@@ -31,9 +31,9 @@ end;
 procedure setMem( address, content : Longword );
 begin
 
-    memory[address    ] := ( content        ) and $FF;
-    memory[address + 1] := ( content shr 8  ) and $FF;
-    memory[address + 2] := ( content shr 16 ) and $FF;
+    memory[address    ] := content and $FF;
+    memory[address + 1] := content and $FF00;
+    memory[address + 2] := content and $FF0000;
 end;
 
 
@@ -100,7 +100,7 @@ begin
         memory[destination] := memory[source];
 
         { let parent jump to the next instruction }
-        setMem( threadIterator, instructionPointer + 3 );
+        setMem( threadIterator, instructionPointer + 9 );
 
     end else
     
@@ -108,7 +108,7 @@ begin
         terminate( threadIterator );
 
     { then, fork if the fork address isn't the next instruction }
-    if fork <> instructionPointer + 3 then createThread( fork );
+    if fork <> instructionPointer + 9 then createThread( fork );
 end;
 
 
