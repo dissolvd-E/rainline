@@ -62,10 +62,11 @@ var
 begin
 
     { find an empty location for the new thread's Instruction Pointer }
+    { the IP zone starts at address 3 }
     location := 3;
 
     { while we're in the IP zone }
-    while ( memory[location] > 0 )
+    while ( getMem( location ) > 0 )
 
     { and this is an active thread }
     and not isTerminated( location )
