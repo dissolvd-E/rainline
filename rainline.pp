@@ -7,7 +7,7 @@ uses    Crt;
 
 
 type
-    memType = array [1..16777216] of Byte;
+    memType = packed array [1..16777216] of Byte;
 
 
 
@@ -249,8 +249,10 @@ begin
 
     repeat
 
-        writeln('(w)ord-input  (i)nstruction-input  (d)ump-words  (o)utput-instructions  (s)tep  (q)uit');
+        write('(w)ord-input  (i)nstruction-input  (d)ump-words  (o)utput-instructions  (s)tep  (q)uit  > ');
+
         userCommand := readkey;
+        writeln(userCommand);
 
         if userCommand = 'w' then wordInput;
 
