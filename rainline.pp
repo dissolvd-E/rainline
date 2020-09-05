@@ -42,7 +42,7 @@ function isTerminated( thread: Longword ) : Boolean;
 begin
 
     { a thread is considered terminated if its IP points to itself }
-    isTerminated := getMem( thread ) <> thread;
+    isTerminated := getMem( thread ) = thread;
 end;
 
 
@@ -124,7 +124,7 @@ begin
     begin
 
         { if this thread is not marked as terminated }
-        if isTerminated( threadIterator ) then stepThread;
+        if not isTerminated( threadIterator ) then stepThread;
 
         threadIterator += 3;
     end;
