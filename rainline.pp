@@ -64,10 +64,10 @@ begin
     { find an empty location for the new thread's Instruction Pointer }
     location := 1;
 
-    { while there's a thread here }
+    { while we're in the IP zone }
     while ( memory[location] > 0 )
 
-    { and this thread's not marked as terminated }
+    { and this is an active thread }
     and not isTerminated( location )
 
     { keep searching }
