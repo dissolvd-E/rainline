@@ -62,7 +62,7 @@ var
 begin
 
     { find an empty location for the new thread's Instruction Pointer }
-    location := 1;
+    location := 3;
 
     { while we're in the IP zone }
     while ( memory[location] > 0 )
@@ -116,9 +116,9 @@ end;
 procedure step;
 begin
 
-    { the 1st thread's Instruction Pointer must be located at address 1 }
+    { the 1st thread's Instruction Pointer must be located at address 3 }
     { because the VM would freeze as soon as the 1st thread is terminated }
-    threadIterator := 1;
+    threadIterator := 3;
     
     while getMem( threadIterator ) > 0 do
     begin
