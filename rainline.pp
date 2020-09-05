@@ -7,20 +7,58 @@ uses    Crt;
 
 
 type
-    memType = array [Word] of Word;
+    memType = array [1..16777216] of Byte;
 
 
 
 var
     memory:         memType;
     userCommand:    Char;
-    threadIterator: Word;
+    threadIterator: Longword;
 
 
 
-procedure createThread( instructionPointer: Word );
+function getMem( address: Longword ) : Longword;
+begin
+
+    getMem :=   ( memory[address    ]        ) or
+                ( memory[address + 1] shl 8  ) or
+                ( memory[address + 2] shl 16 );
+end;
+
+
+
+procedure setMem( address, content : Longword );
+begin
+
+    memory[address    ] := ( content        ) and $FF;
+    memory[address + 1] := ( content shr 8  ) and $FF;
+    memory[address + 2] := ( content shr 16 ) and $FF;
+end;
+
+
+
+function isTerminated( thread: Longword ) : Boolean;
+begin
+
+    { a thread is considered terminated if its IP points to itself }
+    isTerminated := getMem( thread ) <> thread;
+end;
+
+
+
+procedure terminate( thread: Longword );
+begin
+
+    { we mark a thread as terminated by making its IP point to itself }
+    setMem( thread, thread );
+end;
+
+
+
+procedure createThread( instructionPointer: Longword );
 var
-    location: Word;
+    location: Longword;
 begin
 
     { find an empty location for the new thread's Instruction Pointer }
@@ -30,30 +68,30 @@ begin
     while ( memory[location] > 0 )
 
     { and this thread's not marked as terminated }
-    and ( memory[location] <> location )
+    and not isTerminated( location )
 
     { keep searching }
-    do location += 1;
+    do location += 3;
     
     { then create new thread here }
-    memory[location] := instructionPointer;
+    setMem( location, instructionPointer );
 end;
 
 
 
 procedure stepThread;
 var
-    instructionPointer: Word;
-    source:             Word;
-    destination:        Word;
-    fork:               Word;
+    instructionPointer: Longword;
+    source:             Longword;
+    destination:        Longword;
+    fork:               Longword;
 begin
 
-    instructionPointer := memory[threadIterator];
+    instructionPointer := getMem( threadIterator );
 
-    source :=       memory[instructionPointer];
-    destination :=  memory[instructionPointer + 1];
-    fork :=         memory[instructionPointer + 2];
+    source :=       getMem( instructionPointer     );
+    destination :=  getMem( instructionPointer + 3 );
+    fork :=         getMem( instructionPointer + 6 );
 
     if source <> destination then
     begin
@@ -62,12 +100,12 @@ begin
         memory[destination] := memory[source];
 
         { let parent jump to the next instruction }
-        memory[threadIterator] += 3;
+        setMem( threadIterator, instructionPointer + 3 );
 
     end else
     
         { else mark this thread as terminated }
-        memory[threadIterator] := threadIterator;
+        terminate( threadIterator );
 
     { then, fork if the fork address isn't the next instruction }
     if fork <> instructionPointer + 3 then createThread( fork );
@@ -82,29 +120,30 @@ begin
     { because the VM would freeze as soon as the 1st thread is terminated }
     threadIterator := 1;
     
-    while memory[threadIterator] > 0 do
+    while getMem( threadIterator ) > 0 do
     begin
 
         { if this thread is not marked as terminated }
-        if memory[threadIterator] <> threadIterator then stepThread;
+        if isTerminated( threadIterator ) then stepThread;
 
-        threadIterator += 1;
+        threadIterator += 3;
     end;
 end;
 
 
 
-procedure printInstruction( address: Word );
+procedure printInstruction( address: Longword );
 begin
+
     writeln(
         '  [',
         address,
         ']  Source:',
-        memory[address],
+        getMem( address ),
         '  Destination:',
-        memory[address + 1],
+        getMem( address + 3 ),
         '  Fork:',
-        memory[address + 2]
+        getMem( address + 6 )
     );
 end;
 
@@ -112,30 +151,30 @@ end;
 
 procedure wordInput;
 var
-    address:    Word;
-    content:    Word;
+    address:    Longword;
+    content:    Longword;
 begin
 
     write('Enter: Address Content (space-separated) > ');
     readln( address, content );
 
-    memory[address] := content;
+    setMem( address, content );
 end;
 
 
 
 procedure input;
 var
-    address:        Word;
-    source:         Word;
-    destination:    Word;
-    fork:           Word;
+    address:        Longword;
+    source:         Longword;
+    destination:    Longword;
+    fork:           Longword;
 begin
 
     write('Enter: Address (aligned) > ');
     readln( address );
 
-    if address mod 3 <> 0 then
+    if address mod 9 <> 0 then
 
         writeln('Error: Wrong alignment')
 
@@ -144,9 +183,9 @@ begin
         write('Enter: Source Destination Fork (space-separated) > ');
         readln( source, destination, fork );
 
-        memory[address] :=      source;
-        memory[address + 1] :=  destination;
-        memory[address + 2] :=  fork;
+        setMem( address,        source );
+        setMem( address + 3,    destination );
+        setMem( address + 6,    fork );
 
         printInstruction( address );
     end;
@@ -156,9 +195,9 @@ end;
 
 procedure dump;
 var
-    start:  Word;
-    length: Word;
-    i:      Word;
+    start:  Longword;
+    length: Longword;
+    i:      Longword;
 begin
 
     write('Enter: Start > ');
@@ -167,9 +206,12 @@ begin
     write('Enter: Length > ');
     readln( length );
 
-    for i := start to start + length do
-    
-        write('[', i, ']', memory[i], '  ');
+    i := start;
+    while i < start + length do
+    begin
+        write('[', i, ']', memory[i], '-', memory[i + 1], '-', memory[i + 2], '  ');
+        i += 3;
+    end;
 
     writeln;
 end;
@@ -178,9 +220,9 @@ end;
 
 procedure output;
 var
-    start:  Word;
-    length: Word;
-    i:      Word;
+    start:  Longword;
+    length: Longword;
+    i:      Longword;
 begin
 
     write('Enter: Start (aligned) > ');
@@ -189,13 +231,13 @@ begin
     write('Enter: Length > ');
     readln( length );
 
-    if start mod 3 <> 0 then
+    if start mod 9 <> 0 then
 
         writeln('Error: Wrong alignment')
 
     else for i := 0 to length - 1 do
     
-        printInstruction( start + i * 3 );
+        printInstruction( start + i * 9 );
 end;
 
 
