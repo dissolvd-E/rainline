@@ -121,6 +121,7 @@ begin
     { because the VM would freeze as soon as the 1st thread is terminated }
     threadIterator := 3;
     
+    { while we're in the IP zone }
     while getMem( threadIterator ) > 0 do
     begin
 
